@@ -296,6 +296,22 @@ def s_ui_move():
     return normalize(s, peak=0.45)  # quieter
 
 
+def s_soul_denied():
+    # Soft hollow double-thunk: tried to cast without enough soul.
+    dur = 0.22
+    n = int(dur * SR)
+    s = [0.0] * n
+    for t0, fq, amp in [(0.0, 180.0, 0.8), (0.09, 140.0, 0.6)]:
+        i0 = int(t0 * SR)
+        ph = 0.0
+        step = 2.0 * math.pi * fq / SR
+        for i in range(i0, n):
+            tt = (i - i0) / SR
+            s[i] += amp * math.sin(ph) * math.exp(-tt * 30.0)
+            ph += step
+    return normalize(s, peak=0.5)
+
+
 def s_geo():
     dur = 0.12
     f = sweep_fn(2500.0, 2750.0, dur)
@@ -498,6 +514,7 @@ SOUNDS = [
     ("ui_click.wav", s_ui_click, 0.07),
     ("ui_move.wav", s_ui_move, 0.05),
     ("geo.wav", s_geo, 0.12),
+    ("soul_denied.wav", s_soul_denied, 0.22),
     ("gate.wav", s_gate, 0.7),
     ("roar.wav", s_roar, 1.3),
     ("slam.wav", s_slam, 0.5),

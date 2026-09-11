@@ -233,8 +233,11 @@ public static class RoomBuilder
                 if (!spike && runStart >= 0)
                 {
                     var s = new Spikes();
-                    s.Position = new Vector2(runStart * 32, y * 32 + 16);
-                    s.Setup(x - runStart);
+                    int cells = x - runStart;
+                    // Center the node on the run so the hitbox lines up
+                    // with the drawn triangles (shape is centered on node).
+                    s.Position = new Vector2(runStart * 32 + cells * 16f, y * 32 + 16);
+                    s.Setup(cells);
                     root.AddChild(s);
                     runStart = -1;
                 }

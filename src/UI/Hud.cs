@@ -68,6 +68,7 @@ public partial class Hud : CanvasLayer
         public int Soul;
         private int _lastSoul;
         private float _flashT;
+        private float _denyT;
 
         public void Refresh(int soul)
         {
@@ -85,11 +86,23 @@ public partial class Hud : CanvasLayer
             QueueRedraw();
         }
 
+        /// <summary>Brief dull pulse: tried to cast without enough soul.</summary>
+        public void Deny()
+        {
+            _denyT = 0.45f;
+            QueueRedraw();
+        }
+
         public override void _Process(double delta)
         {
             if (_flashT > 0f)
             {
                 _flashT -= (float)delta;
+                QueueRedraw();
+            }
+            if (_denyT > 0f)
+            {
+                _denyT -= (float)delta;
                 QueueRedraw();
             }
         }
@@ -117,6 +130,13 @@ public partial class Hud : CanvasLayer
                 float pulse = 0.5f + 0.5f * Mathf.Sin(_flashT * 25f);
                 DrawArc(c, r + 4f, 0f, Mathf.Tau, 48,
                     new Color(Palette.Soul, 0.35f + 0.45f * pulse), 2f, true);
+            }
+            if (_denyT > 0f)
+            {
+                // Dull hollow shake: the vessel wobbles, drawn dim red-grey.
+                float wob = Mathf.Sin(_denyT * 40f) * 3f * (_denyT / 0.45f);
+                var cc = c + new Vector2(wob, 0f);
+                DrawArc(cc, r, 0f, Mathf.Tau, 48, new Color(0.55f, 0.35f, 0.35f, 0.5f), 3f, true);
             }
         }
     }
@@ -188,6 +208,9 @@ public partial class Hud : CanvasLayer
 
     private void OnHealthChanged(int hp, int maxHp) => _masks?.Refresh(hp, maxHp);
     private void OnSoulChanged(int soul) => _vessel?.Refresh(soul);
+
+    /// <summary>Feedback when the player tries to cast without enough soul.</summary>
+    public void PulseSoulDenied() => _vessel?.Deny();
 
     private void UpdateGeo(int geo)
     {

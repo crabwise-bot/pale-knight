@@ -384,7 +384,16 @@ public partial class Player : CharacterBody2D
     private void TryCastSpell()
     {
         if (Soul < SpellCost || IsDead)
+        {
+            // Not enough soul: dull feedback so the button doesn't feel dead.
+            if (Soul < SpellCost && !IsDead)
+            {
+                Game.Instance?.Hud?.PulseSoulDenied();
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.Play("soul_denied");
+            }
             return;
+        }
         AddSoul(-SpellCost);
         var parent = GetParent();
         if (parent == null)
