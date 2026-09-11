@@ -103,7 +103,7 @@ godot --path . # then press Play in the editor, or run the main scene
 
 ```
 project.godot          Engine project (Godot 4.7, C#, 1280x720)
-PaleKnight.csproj      .NET 8 project (Godot.NET.Sdk/4.7.2)
+PaleKnight.csproj      .NET 8 project (Godot.NET.Sdk/4.7.1)
 scenes/Main.tscn       Entry scene (everything else is built in code)
 src/                   All C# — player, enemies, boss, world, UI, systems
 assets/sfx/            Synthesized WAV sound effects + music loops
