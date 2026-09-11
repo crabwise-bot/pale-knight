@@ -24,6 +24,10 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[dotnet]
+
+project/assembly_name="PaleKnight"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
