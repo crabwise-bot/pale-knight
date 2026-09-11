@@ -380,65 +380,136 @@ def s_boss_die():
 
 
 # ----------------------------------------------------------------- music ---
+def _karplus_strong(freq, dur, damp=0.9965):
+    """Plucked-string / piano-ish tone via Karplus-Strong."""
+    n = int(dur * SR)
+    p = max(2, int(SR / freq))
+    buf = [_RNG.uniform(-1.0, 1.0) for _ in range(p)]
+    out = [0.0] * n
+    idx = 0
+    for i in range(n):
+        cur = buf[idx]
+        nxt = buf[idx + 1] if idx + 1 < p else buf[0]
+        buf[idx] = damp * 0.5 * (cur + nxt)
+        out[i] = cur
+        idx += 1
+        if idx >= p:
+            idx = 0
+    return out
+
+
+def _cavern_reverb(x, wet=0.4):
+    """Dark Schroeder-ish reverb: 4 parallel combs -> 2 series allpasses."""
+    n = len(x)
+
+    def comb(d_ms, fb):
+        d = int(d_ms * SR / 1000.0)
+        buf = [0.0] * d
+        y = [0.0] * n
+        idx = 0
+        for i in range(n):
+            v = x[i] + buf[idx] * fb
+            y[i] = buf[idx]
+            buf[idx] = v
+            idx += 1
+            if idx >= d:
+                idx = 0
+        return y
+
+    def allpass(inp, d_ms, fb):
+        d = int(d_ms * SR / 1000.0)
+        buf = [0.0] * d
+        y = [0.0] * n
+        idx = 0
+        for i in range(n):
+            bv = buf[idx]
+            v = inp[i] + bv * fb
+            y[i] = bv - v * fb
+            buf[idx] = v
+            idx += 1
+            if idx >= d:
+                idx = 0
+        return y
+
+    combs = [comb(29.7, 0.82), comb(37.1, 0.82), comb(41.1, 0.80), comb(43.7, 0.80)]
+    s = [0.0] * n
+    for c in combs:
+        for i in range(n):
+            s[i] += c[i] * 0.25
+    s = allpass(s, 5.0, 0.7)
+    s = allpass(s, 1.7, 0.7)
+    # Darken the tail a touch.
+    s = lowpass(s, 0.35)
+    return [x[i] * (1.0 - wet) + s[i] * wet * 2.2 for i in range(n)]
+
+
 def m_ambient_drone():
-    loop = 16.0
+    # "Pale Dirge": a composed 32 s ambient loop in A minor.
+    # Sparse Karplus-Strong plucked melody over slow bowed-string-ish pads
+    # (Am - F - C - G), washed in cavern reverb.
+    loop = 32.0
     dur = loop + 0.5
     n = int(dur * SR)
+    dry = [0.0] * n
 
-    def q(f):
-        return round(f * loop) / loop
-
-    # Constant low root: A1 with a slow-beating detune partner (2 beats/loop).
-    s = [0.0] * n
-    for fq0, am in [(55.0, 0.30), (55.0 + 2.0 / loop, 0.10)]:
-        fq = q(fq0)
-        ph = 0.0
-        step = 2.0 * math.pi * fq / SR
-        for i in range(n):
-            s[i] += am * math.sin(ph)
-            ph += step
-
-    # Dark Am - F - C - G pad progression, one chord per 4 s with 1.5 s
-    # crossfades. Hollow voicings: root/fifth/color tones, thirds kept soft.
+    # ---- Pads: detuned saw stacks through a dark lowpass, 8 s per chord.
     chords = [
-        [(110.00, 0.22), (164.81, 0.15), (246.94, 0.08), (493.88, 0.04)],  # Am(add9)
-        [(87.31, 0.22), (130.81, 0.13), (220.00, 0.11), (329.63, 0.06)],   # Fmaj7
-        [(130.81, 0.20), (196.00, 0.14), (246.94, 0.09), (329.63, 0.06)],  # Cmaj7
-        [(98.00, 0.22), (146.83, 0.14), (196.00, 0.11), (261.63, 0.07)],   # G(add4)
+        [110.00, 164.81, 220.00, 261.63, 329.63],  # Am
+        [87.31, 130.81, 174.61, 220.00, 261.63],   # F
+        [130.81, 196.00, 261.63, 329.63, 392.00],  # C
+        [98.00, 146.83, 196.00, 246.94, 293.66],   # G
     ]
     seg = loop / 4.0
-    fade = 1.5
-    for ci, partials in enumerate(chords):
+    fade = 2.5
+    for ci, notes in enumerate(chords):
         t0 = ci * seg
-        env = [0.0] * n
-        for i in range(n):
-            dt = i / SR - t0
-            if -fade <= dt <= seg + fade:
-                a = (dt + fade) / fade
-                b = (seg + fade - dt) / fade
-                env[i] = min(1.0, a) * min(1.0, b)
-        for fq0, am in partials:
-            fq = q(fq0)
-            ph = 0.0
-            step = 2.0 * math.pi * fq / SR
-            i0 = max(0, int((t0 - fade) * SR))
-            i1 = min(n, int((t0 + seg + fade) * SR))
-            for i in range(i0, i1):
-                e = env[i]
-                if e > 0.0:
-                    s[i] += am * e * math.sin(ph)
-                ph += step
+        i0 = max(0, int((t0 - fade) * SR))
+        i1 = min(n, int((t0 + seg + fade) * SR))
+        for fq in notes:
+            for det in (-0.12, 0.0, 0.12):
+                f = fq + det
+                ph = 0.0
+                step = 2.0 * math.pi * f / SR
+                amp = 0.05 / len(notes)
+                for i in range(i0, i1):
+                    dt = i / SR - t0
+                    a = min(1.0, (dt + fade) / fade)
+                    b = min(1.0, (seg + fade - dt) / fade)
+                    env = a * b
+                    # Cheap saw-ish: sine + 2nd/3rd harmonics, rolled off.
+                    s_ = math.sin(ph) + 0.35 * math.sin(2 * ph) + 0.15 * math.sin(3 * ph)
+                    dry[i] += amp * env * s_
+                    ph += step
+    dry = lowpass(dry, 0.10)
 
-    # Slow breathing LFO over the whole loop (1 cycle per loop).
-    lfo = [0.88 + 0.12 * math.sin(2 * math.pi * i / SR / loop) for i in range(n)]
-    s = [s[i] * lfo[i] for i in range(n)]
+    # ---- Melody: sparse, mournful plucked phrases with lots of space.
+    # (start_sec, freq, note_dur, amp)
+    melody = [
+        (1.0, 659.26, 3.0, 0.50),   # E5
+        (4.5, 587.33, 2.0, 0.42),   # D5
+        (7.0, 523.25, 3.5, 0.50),   # C5
+        (12.0, 440.00, 2.5, 0.44),  # A4
+        (15.0, 392.00, 2.0, 0.40),  # G4
+        (17.5, 440.00, 3.0, 0.46),  # A4
+        (21.0, 523.25, 2.0, 0.44),  # C5
+        (23.5, 493.88, 2.0, 0.42),  # B4
+        (26.0, 440.00, 2.5, 0.46),  # A4
+        (29.0, 659.26, 2.5, 0.40),  # E5, lifts into the loop
+    ]
+    for t0, fq, ndur, amp in melody:
+        tone = _karplus_strong(fq, ndur, damp=0.9968)
+        i0 = int(t0 * SR)
+        for i, v in enumerate(tone):
+            j = i0 + i
+            if j < n:
+                dry[j] += amp * 0.35 * v
 
-    # Faint airy noise wash, swelling gently.
-    air = lowpass([noise() for _ in range(n)], 0.02)
-    air = [air[i] * 0.05 * (0.7 + 0.3 * math.sin(2 * math.pi * i / SR / loop))
-           for i in range(n)]
-    s = seamless_loop(mix(s, air), 0.5)
-    return normalize(s, peak=0.6)  # deliberately quiet / meditative
+    # ---- Space: cavern reverb + faint airy wash.
+    wet = _cavern_reverb(dry, wet=0.45)
+    air = lowpass([noise() for _ in range(n)], 0.015)
+    air = [a * 0.03 for a in air]
+    s = seamless_loop(mix(wet, air), 0.5)
+    return normalize(s, peak=0.55)
 
 
 def m_boss_music():
@@ -520,7 +591,7 @@ SOUNDS = [
     ("slam.wav", s_slam, 0.5),
     ("stagger.wav", s_stagger, 0.5),
     ("boss_die.wav", s_boss_die, 1.6),
-    ("ambient_drone.wav", m_ambient_drone, 16.0),
+    ("ambient_drone.wav", m_ambient_drone, 32.0),
     ("boss_music.wav", m_boss_music, 16.0),
 ]
 
