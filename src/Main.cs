@@ -43,6 +43,14 @@ public partial class Main : Node
         ShowTitle();
     }
 
+    public override void _Process(double delta)
+    {
+        // Camera follows the player (smoothing is enabled on the Camera2D).
+        var player = Game.Instance?.Player;
+        if (_camera != null && player != null && IsInstanceValid(player))
+            _camera.GlobalPosition = player.GlobalPosition + new Vector2(0f, -40f);
+    }
+
     // ---------------------------------------------------------------- screens
 
     public void ShowTitle()

@@ -365,26 +365,61 @@ def s_boss_die():
 
 # ----------------------------------------------------------------- music ---
 def m_ambient_drone():
-    loop = 12.0
+    loop = 16.0
     dur = loop + 0.5
-    # Whole-cycle partials (f * 12 is an integer) -> loop-safe. The +1/6 Hz
-    # detune partners beat slowly (2 beats per loop) for a detuned feel.
-    partials = [
-        (55.0, 0.50), (55.0 + 1.0 / 6.0, 0.16),
-        (82.5, 0.34), (82.5 + 1.0 / 6.0, 0.12),
-        (110.0, 0.40), (110.0 + 1.0 / 6.0, 0.14),
-        (165.0, 0.10), (220.0, 0.08),
-    ]
     n = int(dur * SR)
+
+    def q(f):
+        return round(f * loop) / loop
+
+    # Constant low root: A1 with a slow-beating detune partner (2 beats/loop).
     s = [0.0] * n
-    for fq, am in partials:
-        for i, x in enumerate(osc(dur, fq, sine, am)):
-            s[i] += x
-    lfo = [0.86 + 0.14 * math.sin(2 * math.pi * i / SR / loop)  # 1 cycle/loop
-           for i in range(n)]
+    for fq0, am in [(55.0, 0.30), (55.0 + 2.0 / loop, 0.10)]:
+        fq = q(fq0)
+        ph = 0.0
+        step = 2.0 * math.pi * fq / SR
+        for i in range(n):
+            s[i] += am * math.sin(ph)
+            ph += step
+
+    # Dark Am - F - C - G pad progression, one chord per 4 s with 1.5 s
+    # crossfades. Hollow voicings: root/fifth/color tones, thirds kept soft.
+    chords = [
+        [(110.00, 0.22), (164.81, 0.15), (246.94, 0.08), (493.88, 0.04)],  # Am(add9)
+        [(87.31, 0.22), (130.81, 0.13), (220.00, 0.11), (329.63, 0.06)],   # Fmaj7
+        [(130.81, 0.20), (196.00, 0.14), (246.94, 0.09), (329.63, 0.06)],  # Cmaj7
+        [(98.00, 0.22), (146.83, 0.14), (196.00, 0.11), (261.63, 0.07)],   # G(add4)
+    ]
+    seg = loop / 4.0
+    fade = 1.5
+    for ci, partials in enumerate(chords):
+        t0 = ci * seg
+        env = [0.0] * n
+        for i in range(n):
+            dt = i / SR - t0
+            if -fade <= dt <= seg + fade:
+                a = (dt + fade) / fade
+                b = (seg + fade - dt) / fade
+                env[i] = min(1.0, a) * min(1.0, b)
+        for fq0, am in partials:
+            fq = q(fq0)
+            ph = 0.0
+            step = 2.0 * math.pi * fq / SR
+            i0 = max(0, int((t0 - fade) * SR))
+            i1 = min(n, int((t0 + seg + fade) * SR))
+            for i in range(i0, i1):
+                e = env[i]
+                if e > 0.0:
+                    s[i] += am * e * math.sin(ph)
+                ph += step
+
+    # Slow breathing LFO over the whole loop (1 cycle per loop).
+    lfo = [0.88 + 0.12 * math.sin(2 * math.pi * i / SR / loop) for i in range(n)]
     s = [s[i] * lfo[i] for i in range(n)]
-    air = lowpass([noise() for _ in range(n)], 0.02)  # faint airy noise
-    air = [air[i] * 0.06 * (0.7 + 0.3 * math.sin(2 * math.pi * i / SR / loop))
+
+    # Faint airy noise wash, swelling gently.
+    air = lowpass([noise() for _ in range(n)], 0.02)
+    air = [air[i] * 0.05 * (0.7 + 0.3 * math.sin(2 * math.pi * i / SR / loop))
            for i in range(n)]
     s = seamless_loop(mix(s, air), 0.5)
     return normalize(s, peak=0.6)  # deliberately quiet / meditative
@@ -468,7 +503,7 @@ SOUNDS = [
     ("slam.wav", s_slam, 0.5),
     ("stagger.wav", s_stagger, 0.5),
     ("boss_die.wav", s_boss_die, 1.6),
-    ("ambient_drone.wav", m_ambient_drone, 12.0),
+    ("ambient_drone.wav", m_ambient_drone, 16.0),
     ("boss_music.wav", m_boss_music, 16.0),
 ]
 

@@ -366,9 +366,19 @@ public static class RoomBuilder
         }
 
         var tex = ImageTexture.CreateFromImage(img);
+
+        // TileSet first: physics layer 0 must exist before any TileData
+        // references it, otherwise tile collision silently fails.
+        var ts = new TileSet();
+        ts.TileSize = new Vector2I(32, 32);
+        ts.AddPhysicsLayer(0);
+        ts.SetPhysicsLayerCollisionLayer(0, 1);
+        ts.SetPhysicsLayerCollisionMask(0, 0);
+
         var atlas = new TileSetAtlasSource();
         atlas.Texture = tex;
         atlas.TextureRegionSize = new Vector2I(32, 32);
+        ts.AddSource(atlas, 0);
         var poly = new Vector2[]
         {
             new Vector2(-16, -16), new Vector2(16, -16),
@@ -381,12 +391,6 @@ public static class RoomBuilder
             td.AddCollisionPolygon(0);
             td.SetCollisionPolygonPoints(0, 0, poly);
         }
-        var ts = new TileSet();
-        ts.TileSize = new Vector2I(32, 32);
-        ts.AddPhysicsLayer(0);
-        ts.SetPhysicsLayerCollisionLayer(0, 1);
-        ts.SetPhysicsLayerCollisionMask(0, 0);
-        ts.AddSource(atlas, 0);
         return ts;
     }
 
