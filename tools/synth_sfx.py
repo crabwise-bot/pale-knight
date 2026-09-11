@@ -444,25 +444,41 @@ def _cavern_reverb(x, wet=0.4):
 
 
 def m_ambient_drone():
-    # "Pale Dirge": a composed 32 s ambient loop in A minor.
-    # Sparse Karplus-Strong plucked melody over slow bowed-string-ish pads
-    # (Am - F - C - G), washed in cavern reverb.
-    loop = 32.0
+    # "Pale Dirge" (long): a ~2:40 composed ambient loop in A minor.
+    # Sparse Karplus-Strong plucked melody over slow bowed-string-ish pads,
+    # washed in cavern reverb. Sections: intro - A - B - A' - outro.
+    intro = 24.0
+    secA = 64.0   # Am F C G x2, 8 s per chord
+    secB = 32.0   # Am G F E, 8 s per chord (phrygian-tinged middle)
+    secAp = 24.0  # Am F G, 8 s per chord
+    outro = 16.0
+    loop = intro + secA + secB + secAp + outro  # 160 s
     dur = loop + 0.5
     n = int(dur * SR)
     dry = [0.0] * n
 
-    # ---- Pads: detuned saw stacks through a dark lowpass, 8 s per chord.
-    chords = [
-        [110.00, 164.81, 220.00, 261.63, 329.63],  # Am
-        [87.31, 130.81, 174.61, 220.00, 261.63],   # F
-        [130.81, 196.00, 261.63, 329.63, 392.00],  # C
-        [98.00, 146.83, 196.00, 246.94, 293.66],   # G
-    ]
-    seg = loop / 4.0
+    Am = [110.00, 164.81, 220.00, 261.63, 329.63]
+    F = [87.31, 130.81, 174.61, 220.00, 261.63]
+    C = [130.81, 196.00, 261.63, 329.63, 392.00]
+    G = [98.00, 146.83, 196.00, 246.94, 293.66]
+    E = [82.41, 164.81, 207.65, 329.63, 415.30]  # E major color for the B section
+
+    # ---- Pad timeline: (start, length, chord notes).
+    pads = [(0.0, intro, Am)]
+    t = intro
+    for ch in (Am, F, C, G, Am, F, C, G):
+        pads.append((t, 8.0, ch))
+        t += 8.0
+    for ch in (Am, G, F, E):
+        pads.append((t, 8.0, ch))
+        t += 8.0
+    for ch in (Am, F, G):
+        pads.append((t, 8.0, ch))
+        t += 8.0
+    pads.append((t, outro, Am))
+
     fade = 2.5
-    for ci, notes in enumerate(chords):
-        t0 = ci * seg
+    for t0, seg, notes in pads:
         i0 = max(0, int((t0 - fade) * SR))
         i1 = min(n, int((t0 + seg + fade) * SR))
         for fq in notes:
@@ -476,25 +492,39 @@ def m_ambient_drone():
                     a = min(1.0, (dt + fade) / fade)
                     b = min(1.0, (seg + fade - dt) / fade)
                     env = a * b
-                    # Cheap saw-ish: sine + 2nd/3rd harmonics, rolled off.
                     s_ = math.sin(ph) + 0.35 * math.sin(2 * ph) + 0.15 * math.sin(3 * ph)
                     dry[i] += amp * env * s_
                     ph += step
     dry = lowpass(dry, 0.10)
 
-    # ---- Melody: sparse, mournful plucked phrases with lots of space.
-    # (start_sec, freq, note_dur, amp)
+    # ---- Melody timeline: (start_sec, freq, note_dur, amp).
+    E5, D5, C5, B4 = 659.26, 587.33, 523.25, 493.88
+    A4, G4 = 440.00, 392.00
+    A5, G5, F5 = 880.00, 783.99, 698.46
     melody = [
-        (1.0, 659.26, 3.0, 0.50),   # E5
-        (4.5, 587.33, 2.0, 0.42),   # D5
-        (7.0, 523.25, 3.5, 0.50),   # C5
-        (12.0, 440.00, 2.5, 0.44),  # A4
-        (15.0, 392.00, 2.0, 0.40),  # G4
-        (17.5, 440.00, 3.0, 0.46),  # A4
-        (21.0, 523.25, 2.0, 0.44),  # C5
-        (23.5, 493.88, 2.0, 0.42),  # B4
-        (26.0, 440.00, 2.5, 0.46),  # A4
-        (29.0, 659.26, 2.5, 0.40),  # E5, lifts into the loop
+        # Intro: lone notes in the dark.
+        (4.0, E5, 3.0, 0.50), (10.0, C5, 4.0, 0.46),
+        (16.0, B4, 3.0, 0.44), (20.0, A4, 3.5, 0.44),
+        # A theme (24-88).
+        (25.0, E5, 3.0, 0.50), (28.5, D5, 2.0, 0.42), (31.0, C5, 3.5, 0.50),
+        (33.0, A4, 2.5, 0.44), (36.0, G4, 2.0, 0.40), (38.5, A4, 3.0, 0.46),
+        (41.0, C5, 2.0, 0.44), (43.5, B4, 2.0, 0.42), (46.0, A4, 2.5, 0.46),
+        (49.0, B4, 2.0, 0.42), (51.5, D5, 2.5, 0.46), (55.0, E5, 3.5, 0.48),
+        (57.0, E5, 3.0, 0.48), (60.5, D5, 2.0, 0.42), (63.0, C5, 3.5, 0.48),
+        (65.0, A4, 2.5, 0.44), (68.0, G4, 2.0, 0.40), (70.5, A4, 3.0, 0.44),
+        (73.0, C5, 2.0, 0.42), (75.5, B4, 2.0, 0.40), (78.0, A4, 2.5, 0.44),
+        (81.0, B4, 2.0, 0.42), (83.5, D5, 2.5, 0.44), (87.0, E5, 3.5, 0.46),
+        # B theme: climbs an octave, tenser (88-120).
+        (89.0, A5, 3.0, 0.44), (93.0, G5, 2.5, 0.42),
+        (97.0, F5, 3.0, 0.44), (101.0, E5, 2.5, 0.42),
+        (105.0, D5, 2.5, 0.42), (108.5, C5, 3.0, 0.44),
+        (113.0, B4, 2.0, 0.42), (116.0, E5, 4.0, 0.46),
+        # A' return (120-144).
+        (121.0, E5, 2.5, 0.46), (124.0, D5, 2.0, 0.42),
+        (129.0, C5, 3.0, 0.46), (132.5, A4, 2.0, 0.42),
+        (137.0, B4, 2.0, 0.42), (139.5, D5, 2.5, 0.44),
+        # Outro: one last high note dissolving into the loop.
+        (145.0, E5, 5.0, 0.44), (151.0, A4, 3.0, 0.36),
     ]
     for t0, fq, ndur, amp in melody:
         tone = _karplus_strong(fq, ndur, damp=0.9968)
@@ -591,7 +621,7 @@ SOUNDS = [
     ("slam.wav", s_slam, 0.5),
     ("stagger.wav", s_stagger, 0.5),
     ("boss_die.wav", s_boss_die, 1.6),
-    ("ambient_drone.wav", m_ambient_drone, 32.0),
+    ("ambient_drone.wav", m_ambient_drone, 160.0),
     ("boss_music.wav", m_boss_music, 16.0),
 ]
 
