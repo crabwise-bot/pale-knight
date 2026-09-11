@@ -1,3 +1,5 @@
+using Godot;
+
 namespace PaleKnight;
 
 /// <summary>Serializable run state. Game.cs owns save/load of this.</summary>
@@ -13,6 +15,12 @@ public class SaveData
     public int Geo = 0;
     public bool BossDefeated = false;
     public float PlayTime = 0f;
+
+    // Shade (death penalty) state
+    public bool ShadeActive = false;
+    public string ShadeRoom = "grotto";
+    public Vector2 ShadePos = Vector2.Zero;
+    public int ShadeGeo = 0;
 
     public SaveData Clone()
     {
