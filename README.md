@@ -10,6 +10,15 @@ the sealed arena below.
 All art is original (procedural silhouettes + generated backgrounds).
 All sound is synthesized in-repo.
 
+## Visuals
+
+> **Concept art** — these show the art direction, not gameplay. Real
+> screenshots will be captured from a running build and added here.
+
+![Title art — a lone knight at the edge of a lightless cavern](assets/textures/title_backdrop.png)
+
+![Animated concept: parallax cavern drift with fog](docs/teaser/parallax_teaser.gif)
+
 ## Controls
 
 | Action | Key | Gamepad |
