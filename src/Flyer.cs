@@ -119,14 +119,14 @@ public partial class Flyer : Enemy
         DrawPolygon(new Vector2[]
         {
             new Vector2(-8f, -2f), new Vector2(-24f, -8f - flap * 8f), new Vector2(-14f, 8f)
-        }, Palette.Rock);
+        }, new[] { Palette.Rock });
         DrawPolygon(new Vector2[]
         {
             new Vector2(8f, -2f), new Vector2(24f, -8f - flap * 8f), new Vector2(14f, 8f)
-        }, Palette.Rock);
+        }, new[] { Palette.Rock });
 
         // Bell/ghost body.
-        DrawPolygon(EllipsePoints(new Vector2(0f, 2f), 12f, 14f), Palette.RockDark);
+        DrawPolygon(EllipsePoints(new Vector2(0f, 2f), 12f, 14f), new[] { Palette.RockDark });
         DrawArc(new Vector2(0f, 2f), 13f, 0.3f, Mathf.Pi - 0.3f, 16, Palette.RockEdge, 2f);
 
         // White mask with round eyes.
@@ -137,6 +137,6 @@ public partial class Flyer : Enemy
 
         // White hit-flash / telegraph strobe overlay.
         if (_flashT > 0f)
-            DrawPolygon(EllipsePoints(new Vector2(0f, 2f), 13f, 15f), new Color(1f, 1f, 1f, _flashT * 0.85f));
+            DrawPolygon(EllipsePoints(new Vector2(0f, 2f), 13f, 15f), new[] { new Color(1f, 1f, 1f, _flashT * 0.85f) });
     }
 }

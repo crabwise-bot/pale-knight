@@ -37,7 +37,7 @@ public partial class Door : Area2D
         var tree = GetTree();
         if (tree != null)
         {
-            await ToSignal(tree.CreateTimer(1.0), SceneTreeTimer.Timeout);
+            await ToSignal(tree.CreateTimer(1.0), SceneTreeTimer.SignalName.Timeout);
             if (IsInstanceValid(this))
                 _used = false;
         }

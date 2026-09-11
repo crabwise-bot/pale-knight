@@ -213,8 +213,6 @@ public static class RoomBuilder
         root.AddChild(bg);
 
         var layer = new TileMapLayer { TileSet = MakeTileSet() };
-        layer.CollisionLayer = 1;
-        layer.CollisionMask = 0;
         for (int y = 0; y < rows; y++)
             for (int x = 0; x < cols; x++)
             {

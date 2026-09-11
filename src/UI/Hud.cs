@@ -18,7 +18,7 @@ public partial class Hud : CanvasLayer
 
     // ------------------------------------------------------------- masks
 
-    private class MasksDisplay : Control
+    private partial class MasksDisplay : Control
     {
         public int Hp = 5;
         public int MaxHp = 5;
@@ -38,7 +38,7 @@ public partial class Hud : CanvasLayer
             for (int i = 0; i < MaxHp; i++)
             {
                 var c = new Vector2(step * i + size + 4f, size + 4f);
-                var diamond = new PackedVector2Array
+                var diamond = new Vector2[]
                 {
                     c + new Vector2(0f, -size),
                     c + new Vector2(size * 0.72f, 0f),
@@ -47,11 +47,11 @@ public partial class Hud : CanvasLayer
                 };
                 if (i < Hp)
                 {
-                    DrawColoredPolygon(diamond, Palette.Pale);
+                    DrawColoredPolygon(diamond, Palette.Pale, System.Array.Empty<Vector2>(), null);
                 }
                 else
                 {
-                    var outline = new PackedVector2Array
+                    var outline = new Vector2[]
                         { diamond[0], diamond[1], diamond[2], diamond[3], diamond[0] };
                     DrawPolyline(outline, new Color(Palette.PaleDim, 0.45f), 2f, true);
                 }
@@ -61,7 +61,7 @@ public partial class Hud : CanvasLayer
 
     // ------------------------------------------------------------- soul
 
-    private class SoulVessel : Control
+    private partial class SoulVessel : Control
     {
         private const int MaxSoul = 99;
         private const int Segment = 33;
@@ -129,7 +129,7 @@ public partial class Hud : CanvasLayer
 
         _masks = new MasksDisplay { Position = new Vector2(24f, 20f) };
         int hp = Game.Instance.Player?.Health ?? Game.Instance.Data.Health;
-        int maxHp = Game.Instance.Player?.MaxHealth ?? Game.Instance.Data.MaxHealth;
+        int maxHp = Player.MaxHealth;
         _masks.Refresh(hp, maxHp);
         AddChild(_masks);
 
@@ -169,12 +169,12 @@ public partial class Hud : CanvasLayer
         _toast.AddThemeFontSizeOverride("font_size", 22);
         _toast.AddThemeColorOverride("font_color", Palette.Pale);
         _toast.Modulate = new Color(1f, 1f, 1f, 0f);
-        _toast.MouseFilter = MouseFilterEnum.Ignore;
+        _toast.MouseFilter = Control.MouseFilterEnum.Ignore;
         AddChild(_toast);
 
         _fade = new ColorRect { Color = new Color(0f, 0f, 0f, 1f) };
-        _fade.SetAnchorsPreset(LayoutPreset.FullRect);
-        _fade.MouseFilter = MouseFilterEnum.Ignore;
+        _fade.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        _fade.MouseFilter = Control.MouseFilterEnum.Ignore;
         _fade.Modulate = new Color(1f, 1f, 1f, 0f);
         _fade.Visible = false;
         AddChild(_fade);

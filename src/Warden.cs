@@ -373,7 +373,7 @@ public partial class Warden : Enemy
     private void ApplyGroundPhysics(double dt)
     {
         float d = (float)dt;
-        Velocity = new Vector2(Mathf.MoveToward(Velocity.x, 0f, 3000f * d), Velocity.y + Gravity * d);
+        Velocity = new Vector2(Mathf.MoveToward(Velocity.X, 0f, 3000f * d), Velocity.Y + Gravity * d);
         MoveAndSlide();
     }
 
@@ -418,7 +418,7 @@ public partial class Warden : Enemy
 
         Player? pl = Game.Instance?.Player;
         float px = (pl != null && !pl.IsDead) ? pl.GlobalPosition.X : GlobalPosition.X;
-        float x = Mathf.Clamp(px, ArenaBounds.Position.x + 60f, ArenaBounds.End.x - 60f);
+        float x = Mathf.Clamp(px, ArenaBounds.Position.X + 60f, ArenaBounds.End.X - 60f);
 
         DismissMarker();
         _marker = new ShadowMarker();
@@ -507,11 +507,11 @@ public partial class Warden : Enemy
 
     private void UpdateDash(float dt, Player? pl)
     {
-        Velocity = new Vector2(_dashDir * DashSpeed, Velocity.y + Gravity * dt);
+        Velocity = new Vector2(_dashDir * DashSpeed, Velocity.Y + Gravity * dt);
         MoveAndSlide();
 
-        float minX = ArenaBounds.Position.x + 40f;
-        float maxX = ArenaBounds.End.x - 40f;
+        float minX = ArenaBounds.Position.X + 40f;
+        float maxX = ArenaBounds.End.X - 40f;
         if (IsOnWall() || GlobalPosition.X <= minX || GlobalPosition.X >= maxX)
         {
             GlobalPosition = new Vector2(Mathf.Clamp(GlobalPosition.X, minX, maxX), GlobalPosition.Y);
@@ -539,7 +539,7 @@ public partial class Warden : Enemy
     {
         _state = State.Recover;
         _stateT = 0.5f;
-        Velocity = new Vector2(0f, Velocity.y);
+        Velocity = new Vector2(0f, Velocity.Y);
         if (!_dying)
             SetHurtboxEnabled(true);
     }
@@ -614,23 +614,23 @@ public static class WardenVisual
         {
             new Vector2(-30f, 42f), new Vector2(30f, 42f),
             new Vector2(22f, 10f), new Vector2(-22f, 10f)
-        }, Palette.RockDark);
+        }, new[] { Palette.RockDark });
         w.DrawPolygon(new Vector2[]
         {
             new Vector2(-26f, 12f), new Vector2(26f, 12f),
             new Vector2(18f, -18f), new Vector2(-18f, -18f)
-        }, Palette.Rock);
+        }, new[] { Palette.Rock });
         w.DrawLine(new Vector2(-22f, 10f), new Vector2(22f, 10f), Palette.RockEdge, 2f);
         w.DrawLine(new Vector2(-18f, -18f), new Vector2(18f, -18f), Palette.RockEdge, 2f);
         // Shoulder spikes.
         w.DrawPolygon(new Vector2[]
         {
             new Vector2(-26f, 6f), new Vector2(-40f, -6f), new Vector2(-24f, -8f)
-        }, Palette.RockEdge);
+        }, new[] { Palette.RockEdge });
         w.DrawPolygon(new Vector2[]
         {
             new Vector2(26f, 6f), new Vector2(40f, -6f), new Vector2(24f, -8f)
-        }, Palette.RockEdge);
+        }, new[] { Palette.RockEdge });
 
         float mx = w.FaceDir * 10f;
         float maskY = -34f + 10f * w.Collapsed - 8f * w.RearUp;
@@ -639,13 +639,13 @@ public static class WardenVisual
         w.DrawPolygon(new Vector2[]
         {
             new Vector2(mx - 12f, maskY - 20f), new Vector2(mx - 24f, maskY - 46f), new Vector2(mx - 2f, maskY - 26f)
-        }, Palette.Pale);
+        }, new[] { Palette.Pale });
         w.DrawPolygon(new Vector2[]
         {
             new Vector2(mx + 12f, maskY - 20f), new Vector2(mx + 24f, maskY - 46f), new Vector2(mx + 2f, maskY - 26f)
-        }, Palette.Pale);
+        }, new[] { Palette.Pale });
         // Big white mask.
-        w.DrawPolygon(Ellipse(new Vector2(mx, maskY), 19f, 25f), Palette.Pale);
+        w.DrawPolygon(Ellipse(new Vector2(mx, maskY), 19f, 25f), new[] { Palette.Pale });
 
         if (w.Collapsed >= 0.5f)
         {
@@ -677,7 +677,7 @@ public static class WardenVisual
 
         // White hit-flash overlay.
         if (w.HitFlash > 0f)
-            w.DrawPolygon(Ellipse(Vector2.Zero, 36f, 48f), new Color(1f, 1f, 1f, w.HitFlash * 0.7f));
+            w.DrawPolygon(Ellipse(Vector2.Zero, 36f, 48f), new[] { new Color(1f, 1f, 1f, w.HitFlash * 0.7f) });
     }
 
     private static Vector2[] Ellipse(Vector2 center, float rx, float ry, int count = 20)

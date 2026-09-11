@@ -51,7 +51,7 @@ public partial class Crawler : Enemy
         if (_dying)
             return;
 
-        Velocity = new Vector2(_dir * Speed, Velocity.y + Gravity * dt);
+        Velocity = new Vector2(_dir * Speed, Velocity.Y + Gravity * dt);
         MoveAndSlide();
 
         if (_ray != null)
@@ -93,7 +93,7 @@ public partial class Crawler : Enemy
 
         // White mask on the front, with angry slit eyes.
         Vector2 maskCenter = new Vector2(9f * _dir, -5f);
-        DrawPolygon(EllipsePoints(maskCenter, 8f, 10f), Palette.Pale);
+        DrawPolygon(EllipsePoints(maskCenter, 8f, 10f), new[] { Palette.Pale });
         Vector2 eyeA = maskCenter + new Vector2(-4f * _dir, -2f);
         Vector2 eyeB = maskCenter + new Vector2(4f * _dir, 0f);
         DrawLine(eyeA + new Vector2(-3f, 0f), eyeA + new Vector2(3f, 0f), Palette.ShadeBlack, 2.5f);
@@ -101,6 +101,6 @@ public partial class Crawler : Enemy
 
         // White hit-flash overlay.
         if (_flashT > 0f)
-            DrawPolygon(EllipsePoints(Vector2.Zero, 15f, 11f), new Color(1f, 1f, 1f, _flashT * 0.85f));
+            DrawPolygon(EllipsePoints(Vector2.Zero, 15f, 11f), new[] { new Color(1f, 1f, 1f, _flashT * 0.85f) });
     }
 }

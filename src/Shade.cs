@@ -63,7 +63,7 @@ public partial class Shade : Enemy
             if (toPlayer.Length() > 4f)
                 drift = toPlayer.Normalized() * DriftSpeed;
         }
-        Vector2 perp = new Vector2(-drift.y, drift.x).Normalized();
+        Vector2 perp = new Vector2(-drift.Y, drift.X).Normalized();
         if (perp.Length() < 0.5f)
             perp = Vector2.Right;
         Vector2 wobble = perp * Mathf.Sin(_t * WobbleFreq + _wobblePhase) * WobbleAmp;
@@ -102,13 +102,13 @@ public partial class Shade : Enemy
     public override void _Draw()
     {
         // Black wisp silhouette: teardrop body with a wispy tail.
-        DrawPolygon(EllipsePoints(new Vector2(0f, -2f), 11f, 14f), Palette.ShadeBlack);
+        DrawPolygon(EllipsePoints(new Vector2(0f, -2f), 11f, 14f), new[] { Palette.ShadeBlack });
         DrawPolygon(new Vector2[]
         {
             new Vector2(-8f, 8f), new Vector2(8f, 8f),
             new Vector2(3f, 22f + Mathf.Sin(_t * 5f) * 3f),
             new Vector2(-3f, 22f - Mathf.Sin(_t * 5f) * 3f),
-        }, Palette.ShadeBlack);
+        }, new[] { Palette.ShadeBlack });
         // Head tendrils.
         DrawLine(new Vector2(-6f, -14f), new Vector2(-12f, -24f + Mathf.Sin(_t * 6f) * 2f), Palette.ShadeBlack, 3f);
         DrawLine(new Vector2(6f, -14f), new Vector2(12f, -24f - Mathf.Sin(_t * 6f) * 2f), Palette.ShadeBlack, 3f);
@@ -119,6 +119,6 @@ public partial class Shade : Enemy
 
         // White hit-flash overlay.
         if (_flashT > 0f)
-            DrawPolygon(EllipsePoints(new Vector2(0f, -2f), 12f, 15f), new Color(1f, 1f, 1f, _flashT * 0.85f));
+            DrawPolygon(EllipsePoints(new Vector2(0f, -2f), 12f, 15f), new[] { new Color(1f, 1f, 1f, _flashT * 0.85f) });
     }
 }

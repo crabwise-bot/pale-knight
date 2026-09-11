@@ -11,7 +11,7 @@ namespace PaleKnight;
 /// </summary>
 public partial class BossProjectile : Area2D
 {
-    private const float Gravity = 950f;
+    private const float FallAccel = 950f;
     private const float Lifetime = 4f;
     private const float HitRadius = 26f;
     private const int TrailLength = 12;
@@ -43,7 +43,7 @@ public partial class BossProjectile : Area2D
             return;
         }
 
-        _vel = new Vector2(_vel.x, _vel.y + Gravity * dt);
+        _vel = new Vector2(_vel.X, _vel.Y + FallAccel * dt);
         GlobalPosition += _vel * dt;
 
         _trail.Add(GlobalPosition);

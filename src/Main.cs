@@ -230,7 +230,7 @@ public partial class Main : Node
 
     private void AddDust(Node parent, Rect2 bounds)
     {
-        var particles = new GPUParticles2D
+        var particles = new GpuParticles2D
         {
             Name = "Dust",
             Amount = 48,

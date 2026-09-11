@@ -52,7 +52,7 @@ public partial class Spikes : Area2D
                     new Vector2(x0 + 16f, 16f),
                     new Vector2(x0 + 8f, -8f)
                 };
-                DrawColoredPolygon(tri, Palette.Pale);
+                DrawColoredPolygon(tri, Palette.Pale, System.Array.Empty<Vector2>(), null);
                 DrawLine(tri[0], tri[2], Palette.RockDark, 2f);
                 DrawLine(tri[1], tri[2], Palette.RockDark, 2f);
             }

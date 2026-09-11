@@ -74,13 +74,13 @@ public partial class SpiritProjectile : Area2D
     private void DrawEllipse(Vector2 center, float rx, float ry, Color col)
     {
         const int segs = 20;
-        var pts = new PackedVector2Array();
+        var pts = new List<Vector2>(segs);
         for (int i = 0; i < segs; i++)
         {
             float a = i / (float)segs * Mathf.Tau;
             pts.Add(center + new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * ry));
         }
-        DrawColoredPolygon(pts, col);
+        DrawColoredPolygon(pts.ToArray(), col, System.Array.Empty<Vector2>(), null);
     }
 
     private void OnBodyEntered(Node2D body)

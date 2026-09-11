@@ -67,7 +67,7 @@ public partial class Bench : Area2D
         if (p == null || p.IsDead) return;
         _restCooldown = 0.8f;
 
-        p.AddHealth(p.MaxHealth - p.Health);
+        p.AddHealth(Player.MaxHealth - p.Health);
 
         if (game!.Data != null)
         {
