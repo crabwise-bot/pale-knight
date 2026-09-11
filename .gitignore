@@ -1,0 +1,22 @@
+# Godot 4+ specific ignores
+.godot/
+godot_editor_metadata.txt
+
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_ReSharperCache/
+
+# Mono
+mono_crash.*
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# Local overrides
+*.local
