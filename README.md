@@ -15,12 +15,13 @@ All sound is synthesized in-repo.
 | Action | Key | Gamepad |
 |---|---|---|
 | Move | A / D or ← / → | Left stick / D-pad |
-| Jump | Space / W / ↑ | A (bottom button) |
-| Dash | Shift / L | RT / B |
-| Attack (nail slash) | J / X | X (left button) |
-| Hold to heal (focus) | K / C | Y (top button) |
-| Interact (bench/door prompt) | E / ↑ | — |
-| Pause | Esc / P | Start |
+| Look up / down | W / S or ↑ / ↓ | D-pad up / down |
+| Jump | Space | A (bottom button) |
+| Dash | Shift | B (right button) |
+| Attack (nail slash) | J | X (left button) |
+| Cast: tap = Vengeful Spirit, hold = Focus heal | K | Y (top button) |
+| Interact (bench) | E | — |
+| Pause | Esc | Start |
 
 Down + Attack in midair performs a downward slash — pogo off enemies!
 
@@ -41,6 +42,28 @@ dotnet build PaleKnight.csproj
 godot --path . # then press Play in the editor, or run the main scene
 ```
 
+## Mechanics (tuned to Hollow Knight reference numbers)
+
+- **Health:** 5 masks. Enemy contact = 1 mask; heavy boss hits = 2 masks;
+  spikes = 1 mask + return to last safe ground.
+- **Soul:** 99 max, +11 per nail hit. Spells and Focus cost 33 each.
+  The meter flashes when a cast becomes available.
+- **Focus heal:** hold Cast — soul is spent up front and wasted if you're
+  interrupted; 1.1 s for the first mask, 0.9 s per chained mask; you're
+  rooted and vulnerable while channeling.
+- **Vengeful Spirit:** tap Cast with 33+ soul — fires a horizontal spirit
+  (3 damage) that passes through enemies.
+- **Movement:** snappy accel, 0.35 s dash (0.6 s cooldown, once per airtime),
+  0.08 s coyote time + jump buffer, wall slide / wall jump, down-slash pogo.
+- **Damage feedback:** ~60 ms hitstop on nail hits, white hit-flash,
+  knockback, 1.2 s i-frames, camera shake + dramatic pause on hurt.
+- **Death:** your shell breaks and a **Shade** holding all your geo is
+  released where you died; your soul meter is capped at 66 until you kill
+  it. Die again first and the geo is lost forever.
+- **Boss (The Warden):** no HP bar, no damage numbers — ever. ~40 HP,
+  hit-count stagger (~8 hits, 2.5 s, max 3 per fight, hitting wakes it),
+  roar + phase change below 50% HP, generous heal windows.
+
 ## Features (Phase 1)
 
 - Player: run / variable jump / coyote time / jump buffering / dash with
@@ -59,10 +82,12 @@ godot --path . # then press Play in the editor, or run the main scene
 
 ## Roadmap (post-Phase 1)
 
-- NPCs + dialogue
-- World map system
-- Charms / upgrades
-- More bosses, more areas
+- Spells: Desolate Dive, Howling Wraiths (+ upgrades)
+- Nail Arts (charged slashes), nail upgrades
+- Charms + notches (bench-equipped)
+- Movement abilities: double jump, wall-cling upgrades
+- World map system (quill/compass/pins), stag stations fast travel
+- NPCs + dialogue, more bosses, more areas
 - Gamepad rumble, accessibility options
 
 ## Project layout
