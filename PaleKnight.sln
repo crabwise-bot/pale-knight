@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaleKnight", "PaleKnight.csproj", "{8CEB5541-862B-498E-A818-3BDEC91D96AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8CEB5541-862B-498E-A818-3BDEC91D96AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CEB5541-862B-498E-A818-3BDEC91D96AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CEB5541-862B-498E-A818-3BDEC91D96AE}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CEB5541-862B-498E-A818-3BDEC91D96AE}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+EndGlobal
